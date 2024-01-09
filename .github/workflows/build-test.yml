@@ -1,0 +1,19 @@
+name: Build Test
+run-name: ${{ github.actor }} pushed to ${{ github.ref_name }} branch, creating a new build
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    container: milchundzucker/php-parallel-lint:latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Checking PHP syntax error
+        run: parallel-lint --exclude vendor --exclude tests .
+        
