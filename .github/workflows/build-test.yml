@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: Build my project ✨
+    name: Building the project
     runs-on: ubuntu-latest
     steps:
       # Checkout
