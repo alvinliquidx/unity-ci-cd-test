@@ -35,18 +35,19 @@ jobs:
         with:
           targetPlatform: WebGL
 
-      # Output
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Build
-          path: build
-
       # Post to slack
-      - uses: slackapi/slack-github-action@v1.24.0
+      - name: Post to Slack
+        uses: slackapi/slack-github-action@v1.24.0
         with:
           environment: 'dev'
           channel-id: ${{ variable.BUILD_BOT_SLACK_CHANNEL_ID }} }}
           slack-message: "GitHub build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.BUILD_BOT_SLACK_BOT_TOKEN }} }}
+
+      # Output
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Build
+          path: build
         
