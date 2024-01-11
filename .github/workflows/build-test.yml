@@ -55,6 +55,8 @@ jobs:
         - name: Post to Slack
           uses: slackapi/slack-github-action@v1.24.0
           if: job.build.status == 'success'
+          env:
+            SLACK_BOT_TOKEN: ${{ secrets.BUILD_BOT_SLACK_BOT_TOKEN }}
           with:
             channel-id: ${{ secrets[format('{0}_BUILD_BOT_SLACK_CHANNEL_ID', github.ref_name )] }}
             payload: |
@@ -91,12 +93,12 @@ jobs:
                   }
                 ]
               }
-          env:
-            SLACK_BOT_TOKEN: ${{ secrets.BUILD_BOT_SLACK_BOT_TOKEN }}
 
         - name: Post to Slack
           uses: slackapi/slack-github-action@v1.24.0
           if: job.build.status != 'success'
+          env:
+            SLACK_BOT_TOKEN: ${{ secrets.BUILD_BOT_SLACK_BOT_TOKEN }}
           with:
             channel-id: ${{ secrets[format('{0}_BUILD_BOT_SLACK_CHANNEL_ID', github.ref_name )] }}
             payload: |
@@ -133,6 +135,4 @@ jobs:
                   }
                 ]
               }
-          env:
-            SLACK_BOT_TOKEN: ${{ secrets.BUILD_BOT_SLACK_BOT_TOKEN }}
         
