@@ -26,6 +26,9 @@ jobs:
           restore-keys: |
             Library-
 
+      - name: Test Fail
+        run: exit 1
+
       # Build
       - name: Build project
         uses: game-ci/unity-builder@v4
@@ -36,18 +39,99 @@ jobs:
         with:
           targetPlatform: WebGL
 
-      # Post to slack
-      - name: Post to Slack
-        uses: slackapi/slack-github-action@v1.24.0
-        with:
-          channel-id: ${{ secrets[format('{0}_BUILD_BOT_SLACK_CHANNEL_ID', github.ref_name )] }}
-          slack-message: "GitHub build status: ${{ job.status }}\nResult: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\nFrom push: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.BUILD_BOT_SLACK_BOT_TOKEN }}
-
       # Output
       - uses: actions/upload-artifact@v3
         with:
           name: Build
           path: build
+
+  slack:
+      name: Posting status update to slack
+      runs-on: ubuntu-latest
+      needs: build
+      steps:
+        # Post to slack
+        - name: Post to Slack
+          uses: slackapi/slack-github-action@v1.24.0
+          if: job.build.status == 'success'
+          with:
+            channel-id: ${{ secrets[format('{0}_BUILD_BOT_SLACK_CHANNEL_ID', github.ref_name )] }}
+            payload: |
+            {
+              "text": "GitHub Build Report",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "GitHub build status: ${{ job.build.status }}" :white_check_mark:
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Github Action"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Triggering Push"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
+          env:
+            SLACK_BOT_TOKEN: ${{ secrets.BUILD_BOT_SLACK_BOT_TOKEN }}
+
+        - name: Post to Slack
+          uses: slackapi/slack-github-action@v1.24.0
+          if: job.build.status != 'success'
+          with:
+            channel-id: ${{ secrets[format('{0}_BUILD_BOT_SLACK_CHANNEL_ID', github.ref_name )] }}
+            payload: |
+            {
+              "text": "GitHub Build Report",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "GitHub build status: ${{ job.build.status }}" :octagonal_sign:
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Github Action"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    },
+                    {
+                      "type": "button",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "Triggering Push"
+                      },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
+          env:
+            SLACK_BOT_TOKEN: ${{ secrets.BUILD_BOT_SLACK_BOT_TOKEN }}
         
