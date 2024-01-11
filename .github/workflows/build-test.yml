@@ -25,10 +25,7 @@ jobs:
           key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
             Library-
-
-      - name: Test Fail
-        run: exit 1
-
+          
       # Build
       - name: Build project
         uses: game-ci/unity-builder@v4
@@ -85,7 +82,7 @@ jobs:
                           "type": "plain_text",
                           "text": "Triggering Push"
                         },
-                        "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                        "url": "${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
                       }
                     ]
                   }
@@ -127,7 +124,7 @@ jobs:
                           "type": "plain_text",
                           "text": "Triggering Push"
                         },
-                        "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                        "url": "${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
                       }
                     ]
                   }
