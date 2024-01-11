@@ -25,7 +25,7 @@ jobs:
           key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
             Library-
-          
+
       # Build
       - name: Build project
         uses: game-ci/unity-builder@v4
@@ -93,7 +93,7 @@ jobs:
 
         - name: Post to Slack
           uses: slackapi/slack-github-action@v1.24.0
-          if: job.build.status != 'success'
+          if: needs.build.result != 'success'
           with:
             channel-id: ${{ secrets[format('{0}_BUILD_BOT_SLACK_CHANNEL_ID', github.ref_name )] }}
             payload: |
