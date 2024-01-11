@@ -37,7 +37,7 @@ jobs:
           targetPlatform: WebGL
 
       # Output
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: Build
           path: build
@@ -152,7 +152,7 @@ jobs:
           role-duration-seconds: 1200
           role-skip-session-tagging: true
 
-      - uses: actions/download-artifact@master
+      - uses: actions/download-artifact@v4
         with:
           name: Build
           path: build
