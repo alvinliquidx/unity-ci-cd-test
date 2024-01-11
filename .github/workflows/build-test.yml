@@ -56,40 +56,40 @@ jobs:
           if: job.build.status == 'success'
           with:
             channel-id: ${{ secrets[format('{0}_BUILD_BOT_SLACK_CHANNEL_ID', github.ref_name )] }}
-            payload: 
-            {
-              "text": "GitHub Build Report",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "GitHub build status: ${{ job.build.status }}" :white_check_mark:
-                  }
-                },
-                {
-                  "type": "actions",
-                  "elements": [
-                    {
-                      "type": "button",
-                      "text": {
-                        "type": "plain_text",
-                        "text": "Github Action"
-                      },
-                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                    },
-                    {
-                      "type": "button",
-                      "text": {
-                        "type": "plain_text",
-                        "text": "Triggering Push"
-                      },
-                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            payload: |
+              {
+                "text": "GitHub Build Report",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "GitHub build status: ${{ job.build.status }}" :white_check_mark:
                     }
-                  ]
-                }
-              ]
-            }
+                  },
+                  {
+                    "type": "actions",
+                    "elements": [
+                      {
+                        "type": "button",
+                        "text": {
+                          "type": "plain_text",
+                          "text": "Github Action"
+                        },
+                        "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                      },
+                      {
+                        "type": "button",
+                        "text": {
+                          "type": "plain_text",
+                          "text": "Triggering Push"
+                        },
+                        "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                      }
+                    ]
+                  }
+                ]
+              }
           env:
             SLACK_BOT_TOKEN: ${{ secrets.BUILD_BOT_SLACK_BOT_TOKEN }}
 
@@ -98,40 +98,40 @@ jobs:
           if: job.build.status != 'success'
           with:
             channel-id: ${{ secrets[format('{0}_BUILD_BOT_SLACK_CHANNEL_ID', github.ref_name )] }}
-            payload: 
-            {
-              "text": "GitHub Build Report",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "GitHub build status: ${{ job.build.status }}" :octagonal_sign:
-                  }
-                },
-                {
-                  "type": "actions",
-                  "elements": [
-                    {
-                      "type": "button",
-                      "text": {
-                        "type": "plain_text",
-                        "text": "Github Action"
-                      },
-                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                    },
-                    {
-                      "type": "button",
-                      "text": {
-                        "type": "plain_text",
-                        "text": "Triggering Push"
-                      },
-                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            payload: |
+              {
+                "text": "GitHub Build Report",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "GitHub build status: ${{ job.build.status }}" :octagonal_sign:
                     }
-                  ]
-                }
-              ]
-            }
+                  },
+                  {
+                    "type": "actions",
+                    "elements": [
+                      {
+                        "type": "button",
+                        "text": {
+                          "type": "plain_text",
+                          "text": "Github Action"
+                        },
+                        "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                      },
+                      {
+                        "type": "button",
+                        "text": {
+                          "type": "plain_text",
+                          "text": "Triggering Push"
+                        },
+                        "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                      }
+                    ]
+                  }
+                ]
+              }
           env:
             SLACK_BOT_TOKEN: ${{ secrets.BUILD_BOT_SLACK_BOT_TOKEN }}
         
