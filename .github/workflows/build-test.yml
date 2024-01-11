@@ -49,6 +49,7 @@ jobs:
       name: Posting status update to slack
       runs-on: ubuntu-latest
       needs: build
+      if: ${{ always() }}
       steps:
         # Post to slack
         - name: Post to Slack
