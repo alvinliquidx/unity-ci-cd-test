@@ -41,7 +41,6 @@ jobs:
         with:
           name: Build
           path: build
-
   slack:
       name: Posting status update to slack
       runs-on: ubuntu-latest
@@ -132,4 +131,63 @@ jobs:
               }
           env:
             SLACK_BOT_TOKEN: ${{ secrets.BUILD_BOT_SLACK_BOT_TOKEN }}
-        
+  deploy:
+    name: Deploying build
+    runs-on: ubuntu-latest
+    needs: build
+    env:
+      BUCKET: ${{ vars[format('{0}_AWS_S3_BUCKET', github.ref_name )] }}
+      DISTRIBUTION: ${{ vars[format('{0}_AWS_DISTRIBUTION', github.ref_name )] }}
+    steps:
+      - uses: actions/checkout@v4.1.1
+        name: Checkout
+
+      - uses: aws-actions/configure-aws-credentials@v4.0.1
+        name: Configure AWS credentials
+        with:
+          aws-region: ap-southeast-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-duration-seconds: 1200
+          role-skip-session-tagging: true
+
+      - uses: actions/download-artifact@master
+        with:
+          name: Build
+          path: build
+
+      - name: "[Deploy Phase 1] Sync everything from build dir to S3 bucket"
+        working-directory: Build
+        run: aws s3 sync . s3://$BUCKET --delete
+
+      - name: "[Deploy Phase 2] Brotli-compressed files"
+        working-directory: Build
+        run: |
+          aws s3 cp . s3://$BUCKET \
+              --exclude="*" --include="*.br" \
+              --content-encoding br \
+              --content-type="binary/octet-stream" \
+              --metadata-directive REPLACE --recursive;
+
+      - name: "[Deploy Phase 3] Brotli-compressed Javascript"
+        working-directory: Build
+        run: |
+          aws s3 cp . s3://$BUCKET \
+              --exclude="*" --include="*.js.br" \
+              --content-encoding br \
+              --content-type="application/javascript" \
+              --metadata-directive REPLACE --recursive;
+
+      - name: "[Deploy Phase 4] Brotli-compressed WASM"
+        working-directory: Build
+        run: |
+          aws s3 cp . s3://$BUCKET \
+              --exclude="*" --include="*.wasm.br" \
+              --content-encoding br \
+              --content-type="application/wasm" \
+              --metadata-directive REPLACE --recursive;
+
+      - name: Invalidate CloudFront distribution
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ env.DISTRIBUTION }} --paths /*
