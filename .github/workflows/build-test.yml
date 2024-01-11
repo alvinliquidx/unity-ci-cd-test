@@ -3,7 +3,7 @@ run-name: ${{ github.actor }} pushed to ${{ github.ref_name }} branch, creating 
 
 on:
   push:
-    branches: [test/build, test/build2]
+    branches: [dev]
 
 jobs:
   build:
@@ -40,7 +40,7 @@ jobs:
       - name: Post to Slack
         uses: slackapi/slack-github-action@v1.24.0
         with:
-          channel-id: ${{ vars.BUILD_BOT_SLACK_CHANNEL_ID }}
+          channel-id: ${{ secrets[format('{0}_BUILD_BOT_SLACK_CHANNEL_ID', github.ref_name )] }}
           slack-message: "GitHub build status: ${{ job.status }}\nResult: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\nFrom push: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         env:
           SLACK_BOT_TOKEN: ${{ secrets.BUILD_BOT_SLACK_BOT_TOKEN }}
