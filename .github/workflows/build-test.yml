@@ -54,7 +54,7 @@ jobs:
         # Post to slack
         - name: Post to Slack
           uses: slackapi/slack-github-action@v1.24.0
-          if: job.build.status == 'success'
+          if: jobs.build.result == 'success'
           with:
             channel-id: ${{ secrets[format('{0}_BUILD_BOT_SLACK_CHANNEL_ID', github.ref_name )] }}
             payload: |
@@ -65,7 +65,7 @@ jobs:
                     "type": "section",
                     "text": {
                       "type": "mrkdwn",
-                      "text": "GitHub build status: ${{ job.build.status }} :white_check_mark:"
+                      "text": "GitHub build status: ${{ jobs.build.result }} :white_check_mark:"
                     }
                   },
                   {
@@ -107,7 +107,7 @@ jobs:
                     "type": "section",
                     "text": {
                       "type": "mrkdwn",
-                      "text": "GitHub build status: ${{ job.build.status }} :octagonal_sign:"
+                      "text": "GitHub build status: ${{ jobs.build.result }} :octagonal_sign:"
                     }
                   },
                   {
