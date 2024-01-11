@@ -56,7 +56,7 @@ jobs:
           if: job.build.status == 'success'
           with:
             channel-id: ${{ secrets[format('{0}_BUILD_BOT_SLACK_CHANNEL_ID', github.ref_name )] }}
-            payload: |
+            payload: 
             {
               "text": "GitHub Build Report",
               "blocks": [
@@ -98,7 +98,7 @@ jobs:
           if: job.build.status != 'success'
           with:
             channel-id: ${{ secrets[format('{0}_BUILD_BOT_SLACK_CHANNEL_ID', github.ref_name )] }}
-            payload: |
+            payload: 
             {
               "text": "GitHub Build Report",
               "blocks": [
