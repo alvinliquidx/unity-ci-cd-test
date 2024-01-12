@@ -157,6 +157,10 @@ jobs:
           name: Build
           path: build
 
+      - name: "[Deploy Phase 0] Remove Identity Cahce"
+        working-directory: build
+        run: rm -r ~/.aws/cli/cache
+
       - name: "[Deploy Phase 0] Check Identity"
         working-directory: build
         run: aws sts get-caller-identity
