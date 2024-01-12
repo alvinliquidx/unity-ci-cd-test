@@ -42,7 +42,7 @@ jobs:
           name: Build
           path: build
   slack:
-      name: Posting status update to slack
+      name: Posting build status to slack
       runs-on: ubuntu-latest
       needs: build
       if: ${{ always() }}
@@ -157,6 +157,10 @@ jobs:
           name: Build
           path: build
 
+      - name: "[Deploy Phase 0] Check Identity"
+        working-directory: build
+        run: aws sts get-caller-identity
+
       - name: "[Deploy Phase 1] Sync everything from build dir to S3 bucket"
         working-directory: build
         run: aws s3 sync . s3://$BUCKET --delete
@@ -191,3 +195,93 @@ jobs:
       - name: Invalidate CloudFront distribution
         run: |
           aws cloudfront create-invalidation --distribution-id ${{ env.DISTRIBUTION }} --paths /*
+  slack-deploy:
+      name: Posting deploy status to slack
+      runs-on: ubuntu-latest
+      needs: deploy
+      if: ${{ always() }}
+      steps:
+        # Post to slack
+        - name: Post to Slack
+          uses: slackapi/slack-github-action@v1.24.0
+          if: needs.deploy.result == 'success'
+          with:
+            channel-id: ${{ secrets[format('{0}_BUILD_BOT_SLACK_CHANNEL_ID', github.ref_name )] }}
+            payload: |
+              {
+                "text": "GitHub Build Report",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "GitHub deploy status: ${{ needs.deploy.result }} :white_check_mark:"
+                    }
+                  },
+                  {
+                    "type": "actions",
+                    "elements": [
+                      {
+                        "type": "button",
+                        "text": {
+                          "type": "plain_text",
+                          "text": "Github Action"
+                        },
+                        "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                      },
+                      {
+                        "type": "button",
+                        "text": {
+                          "type": "plain_text",
+                          "text": "Triggering Push"
+                        },
+                        "url": "${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                      }
+                    ]
+                  }
+                ]
+              }
+          env:
+            SLACK_BOT_TOKEN: ${{ secrets.BUILD_BOT_SLACK_BOT_TOKEN }}
+
+        - name: Post to Slack
+          uses: slackapi/slack-github-action@v1.24.0
+          if: needs.deploy.result != 'success'
+          with:
+            channel-id: ${{ secrets[format('{0}_BUILD_BOT_SLACK_CHANNEL_ID', github.ref_name )] }}
+            payload: |
+              {
+                "text": "GitHub Build Report",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "GitHub deploy status: ${{ needs.deploy.result }} :octagonal_sign:"
+                    }
+                  },
+                  {
+                    "type": "actions",
+                    "elements": [
+                      {
+                        "type": "button",
+                        "text": {
+                          "type": "plain_text",
+                          "text": "Github Action"
+                        },
+                        "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                      },
+                      {
+                        "type": "button",
+                        "text": {
+                          "type": "plain_text",
+                          "text": "Triggering Push"
+                        },
+                        "url": "${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                      }
+                    ]
+                  }
+                ]
+              }
+          env:
+            SLACK_BOT_TOKEN: ${{ secrets.BUILD_BOT_SLACK_BOT_TOKEN }}
