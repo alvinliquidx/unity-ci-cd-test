@@ -158,15 +158,15 @@ jobs:
           role-skip-session-tagging: true
 
       - name: "[Deploy Phase 0] Check Identity"
-        working-directory: build/WebGL
+        working-directory: build/WebGL/WebGL
         run: aws sts get-caller-identity
 
       - name: "[Deploy Phase 1] Sync everything from build dir to S3 bucket"
-        working-directory: build/WebGL
+        working-directory: build/WebGL/WebGL
         run: aws s3 sync . s3://$BUCKET --delete
 
       - name: "[Deploy Phase 2] Brotli-compressed files"
-        working-directory: build/WebGL
+        working-directory: build/WebGL/WebGL
         run: |
           aws s3 cp . s3://$BUCKET \
               --exclude="*" --include="*.br" \
@@ -175,7 +175,7 @@ jobs:
               --metadata-directive REPLACE --recursive;
 
       - name: "[Deploy Phase 3] Brotli-compressed Javascript"
-        working-directory: build/WebGL
+        working-directory: build/WebGL/WebGL
         run: |
           aws s3 cp . s3://$BUCKET \
               --exclude="*" --include="*.js.br" \
@@ -184,7 +184,7 @@ jobs:
               --metadata-directive REPLACE --recursive;
 
       - name: "[Deploy Phase 4] Brotli-compressed WASM"
-        working-directory: build/WebGL
+        working-directory: build/WebGL/WebGL
         run: |
           aws s3 cp . s3://$BUCKET \
               --exclude="*" --include="*.wasm.br" \
@@ -285,4 +285,3 @@ jobs:
               }
           env:
             SLACK_BOT_TOKEN: ${{ secrets.BUILD_BOT_SLACK_BOT_TOKEN }}
-            
